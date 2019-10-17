@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component, Fragment} from 'react';
 
 import Template from '../../hoc/Template/Template';
 import Burger from '../../components/Burger/Burger';
@@ -21,17 +21,19 @@ class BurgerBuilder extends Component{
 
     state = {
 
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            cheese: 0,
-            meat: 0,
-        },
+        ingredients: null,
         totalPrice: 4,
         purchasable: false,
         purchasing: false,
         loading: false,
     };
+
+    componentDidMount() {
+        axios.get('https://udemy-react-fd94e.firebaseio.com/ingredients.json')
+            .then( response => {
+                this.setState({ingredients: response.data});
+            });
+    }
 
     addIngredientHandler = (type) => {
 
@@ -133,11 +135,32 @@ class BurgerBuilder extends Component{
             disableInfo[key] = disableInfo[key] <= 0;
         }
 
-        let orderSummary = <OrderSummary
-            ingredients={this.state.ingredients}
-            totalPrice={this.state.totalPrice}
-            onContinue={this.purchaseContinueHandler}
-            onCancel={this.purchaseCancelHandler}/>;
+        let orderSummary = null;
+        let burger = <Spinner/>
+
+        if( this.state.ingredients){
+
+            orderSummary = <OrderSummary
+                ingredients={this.state.ingredients}
+                totalPrice={this.state.totalPrice}
+                onContinue={this.purchaseContinueHandler}
+                onCancel={this.purchaseCancelHandler}/>;
+
+            burger = (
+                <Fragment>
+                    <Burger ingredients={this.state.ingredients} />
+                    <BuildControls
+                        disabled={disableInfo}
+                        price={this.state.totalPrice}
+                        purchasable={this.state.purchasable}
+                        onOrder={this.purchaseHandler}
+                        onIngredientAdd={this.addIngredientHandler}
+                        onIngredientRemove={this.removeIngredientHandler}/>
+                </Fragment>
+            );
+
+        }
+
         if( this.state.loading ){
             orderSummary = <Spinner/>;
         }
@@ -149,15 +172,7 @@ class BurgerBuilder extends Component{
                     {orderSummary}
                 </Modal>
 
-                <Burger ingredients={this.state.ingredients} />
-
-                <BuildControls
-                    disabled={disableInfo}
-                    price={this.state.totalPrice}
-                    purchasable={this.state.purchasable}
-                    onOrder={this.purchaseHandler}
-                    onIngredientAdd={this.addIngredientHandler}
-                    onIngredientRemove={this.removeIngredientHandler}/>
+                {burger}
 
             </Template>
         );
