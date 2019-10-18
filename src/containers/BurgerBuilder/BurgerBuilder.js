@@ -20,7 +20,6 @@ const INGREDIENT_PRICES = {
 class BurgerBuilder extends Component{
 
     state = {
-
         ingredients: null,
         totalPrice: 4,
         purchasable: false,
@@ -33,6 +32,7 @@ class BurgerBuilder extends Component{
         axios.get('https://udemy-react-fd94e.firebaseio.com/ingredients.json')
             .then( response => {
                 this.setState({ingredients: response.data});
+                this.updatePurchaseState();
             })
             .catch( error => {
                 this.setState({error: true});
@@ -106,7 +106,8 @@ class BurgerBuilder extends Component{
     };
 
     purchaseContinueHandler = () => {
-        this.setState({loading: true});
+        this.props.history.push('/checkout');
+        /*this.setState({loading: true});
         const order = {
             ingredients: this.state.ingredients,
             totalPrice: this.state.totalPrice,
@@ -127,7 +128,7 @@ class BurgerBuilder extends Component{
             })
             .catch( error => {
                 this.setState({loading: false, purchasing: false});
-            });
+            });*/
     };
 
     render(){
