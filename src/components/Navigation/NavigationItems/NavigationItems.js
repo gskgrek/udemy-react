@@ -6,8 +6,9 @@ import css from './NavigationItems.module.scss'
 
 const navigationItems = () => (
     <ul className={css.NavigationItems}>
-        <NavigationItem url="/" active>Burger builder</NavigationItem>
-        <NavigationItem url="/">Checkout</NavigationItem>
+        <NavigationItem url="/" exact>Burger builder</NavigationItem>
+        <NavigationItem url="/checkout">Checkout</NavigationItem>
+        <NavigationItem url="/orders">Orders</NavigationItem>
     </ul>
 );
 
