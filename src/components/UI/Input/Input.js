@@ -5,15 +5,22 @@ import css from './input.module.scss';
 const input = (props) => {
     let inputElement = null;
 
-    switch (props.inputtype) {
+    switch (props.elementType) {
         case 'input':
-            inputElement = <input className={css.InputElement} {...props} />;
+            inputElement = <input className={css.InputElement} {...props.elementConfig} value={props.value} />;
             break;
         case 'textarea':
-            inputElement = <textarea className={css.InputElement} {...props} />;
+            inputElement = <textarea className={css.InputElement} {...props.elementConfig} />;
+            break;
+        case 'select':
+            inputElement = (
+                <select className={css.InputElement}>
+                    {props.elementConfig.options.map( option => <option key={option.value} value={option.value}>{option.displayValue}</option> )}
+                </select>
+            );
             break;
         default:
-            inputElement = <input className={css.InputElement} {...props} />;
+            inputElement = <input className={css.InputElement} {...props.elementConfig} />;
     }
 
     return (
