@@ -17,7 +17,7 @@ class ContactData extends Component{
                     type: 'text',
                     placeholder: 'Your name',
                 },
-                value: 'Jan Kowalski',
+                value: '',
                 validation: {
                     required: true,
                 },
@@ -30,7 +30,7 @@ class ContactData extends Component{
                     type: 'email',
                     placeholder: 'Your email',
                 },
-                value: 'nie@ma.pl',
+                value: '',
                 validation: {
                     required: true,
                 },
@@ -43,7 +43,7 @@ class ContactData extends Component{
                     type: 'text',
                     placeholder: 'Street',
                 },
-                value: 'Uliczka',
+                value: '',
                 validation: {
                     required: true,
                 },
@@ -56,7 +56,7 @@ class ContactData extends Component{
                     type: 'text',
                     placeholder: 'ZIP code',
                 },
-                value: '00-00',
+                value: '',
                 validation: {
                     required: true,
                     minLength: 6,
@@ -71,7 +71,7 @@ class ContactData extends Component{
                     type: 'text',
                     placeholder: 'Country',
                 },
-                value: 'Poland',
+                value: '',
                 validation: {
                     required: true,
                 },
@@ -91,10 +91,11 @@ class ContactData extends Component{
                     ]
                 },
                 value: 'fastest',
-                valid: false,
+                valid: true,
                 touched: false,
             },
         },
+        formIsValid: false,
         loading: false,
         price: 0,
     };
@@ -129,16 +130,18 @@ class ContactData extends Component{
     checkValidity(value, rules){
         let isValid = true;
 
-        if( isValid && rules.required ){
-            isValid = value.trim() !== '';
-        }
+        if( rules ) {
+            if (isValid && rules.required) {
+                isValid = value.trim() !== '';
+            }
 
-        if( isValid && rules.minLength ){
-            isValid = value.length >= rules.minLength;
-        }
+            if (isValid && rules.minLength) {
+                isValid = value.length >= rules.minLength;
+            }
 
-        if( isValid && rules.maxLength ){
-            isValid = value.length <= rules.maxLength;
+            if (isValid && rules.maxLength) {
+                isValid = value.length <= rules.maxLength;
+            }
         }
 
         return isValid;
@@ -155,7 +158,13 @@ class ContactData extends Component{
         updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
         updatedFormElement.touched = true;
         updatedOrderForm[inputIdentifier] = updatedFormElement;
-        this.setState({orderForm: updatedOrderForm});
+
+        let formIsValid = true;
+        for( let inputIdentifier in updatedOrderForm ){
+            formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
+        }
+
+        this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
     };
 
     render() {
@@ -177,7 +186,7 @@ class ContactData extends Component{
                         touched={formElement.config.touched}
                         changed={(event) => this.inputChangedHandler(event, formElement.id)} />
                 ))}
-                <Button type="Success">ORDER</Button>
+                <Button type="Success" disabled={!this.state.formIsValid}>ORDER</Button>
             </form>
         );
         if( this.state.loading ){
