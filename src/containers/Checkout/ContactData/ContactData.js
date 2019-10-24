@@ -44,6 +44,14 @@ class ContactData extends Component{
                 value: '00-00',
             },
             country: {
+                elementType: 'input',
+                elementConfig: {
+                    type: 'text',
+                    placeholder: 'Country',
+                },
+                value: 'Poland',
+            },
+            deliveryMethod: {
                 elementType: 'select',
                 elementConfig: {
                     options: [
@@ -54,14 +62,6 @@ class ContactData extends Component{
                             value: 'cheapest', displayValue: 'Cheapest',
                         }
                     ]
-                },
-                value: 'Poland',
-            },
-            deliveryMethod: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Delivery method',
                 },
                 value: 'fastest',
             },
@@ -74,10 +74,16 @@ class ContactData extends Component{
         e.preventDefault();
 
         this.setState({loading: true});
+
+        const formData = {};
+        for( let formElementIdentifier in this.state.orderForm ){
+            formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value;
+        }
+
         const order = {
             ingredients: this.props.ingredients,
             price: this.props.price,
-
+            orderData: formData,
         };
         axios.post('/orders.json', order)
             .then( response => {
@@ -110,7 +116,7 @@ class ContactData extends Component{
         }
 
         let form = (
-            <form>
+            <form onSubmit={this.orderHandler}>
                 {formElementsArray.map( (formElement) => (
                     <Input
                         key={formElement.id}
@@ -119,7 +125,7 @@ class ContactData extends Component{
                         value={formElement.config.value}
                         changed={(event) => this.inpuutChangedHandler(event, formElement.id)} />
                 ))}
-                <Button type="Success" onClick={this.orderHandler}>ORDER</Button>
+                <Button type="Success">ORDER</Button>
             </form>
         );
         if( this.state.loading ){
