@@ -18,6 +18,10 @@ class ContactData extends Component{
                     placeholder: 'Your name',
                 },
                 value: 'Jan Kowalski',
+                validation: {
+                    required: true,
+                },
+                valid: false,
             },
             email: {
                 elementType: 'input',
@@ -26,6 +30,10 @@ class ContactData extends Component{
                     placeholder: 'Your email',
                 },
                 value: 'nie@ma.pl',
+                validation: {
+                    required: true,
+                },
+                valid: false,
             },
             street: {
                 elementType: 'input',
@@ -34,6 +42,10 @@ class ContactData extends Component{
                     placeholder: 'Street',
                 },
                 value: 'Uliczka',
+                validation: {
+                    required: true,
+                },
+                valid: false,
             },
             zipCode: {
                 elementType: 'input',
@@ -42,6 +54,12 @@ class ContactData extends Component{
                     placeholder: 'ZIP code',
                 },
                 value: '00-00',
+                validation: {
+                    required: true,
+                    minLength: 6,
+                    maxLength: 6,
+                },
+                valid: false,
             },
             country: {
                 elementType: 'input',
@@ -50,6 +68,10 @@ class ContactData extends Component{
                     placeholder: 'Country',
                 },
                 value: 'Poland',
+                validation: {
+                    required: true,
+                },
+                valid: false,
             },
             deliveryMethod: {
                 elementType: 'select',
@@ -64,6 +86,7 @@ class ContactData extends Component{
                     ]
                 },
                 value: 'fastest',
+                valid: false,
             },
         },
         loading: false,
@@ -97,7 +120,25 @@ class ContactData extends Component{
         return false;
     };
 
-    inpuutChangedHandler = (event, inputIdentifier) => {
+    checkValidity(value, rules){
+        let isValid = true;
+
+        if( isValid && rules.required ){
+            isValid = value.trim() !== '';
+        }
+
+        if( isValid && rules.minLength ){
+            isValid = value.length >= rules.minLength;
+        }
+
+        if( isValid && rules.maxLength ){
+            isValid = value.length <= rules.maxLength;
+        }
+
+        return isValid;
+    }
+
+    inputChangedHandler = (event, inputIdentifier) => {
         const updatedOrderForm = {
             ...this.state.orderForm
         };
@@ -105,6 +146,8 @@ class ContactData extends Component{
             ...updatedOrderForm[inputIdentifier]
         };
         updatedFormElement.value = event.target.value;
+        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+        console.log( updatedFormElement );
         updatedOrderForm[inputIdentifier] = updatedFormElement;
         this.setState({orderForm: updatedOrderForm});
     };
@@ -123,7 +166,7 @@ class ContactData extends Component{
                         elementType={formElement.config.elementType}
                         elementConfig={formElement.config.elementConfig}
                         value={formElement.config.value}
-                        changed={(event) => this.inpuutChangedHandler(event, formElement.id)} />
+                        changed={(event) => this.inputChangedHandler(event, formElement.id)} />
                 ))}
                 <Button type="Success">ORDER</Button>
             </form>
