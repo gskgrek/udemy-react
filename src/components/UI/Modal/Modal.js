@@ -1,34 +1,30 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import Template from '../../../hoc/Template/Template';
 import BackDrop from '../Backdrop/Backdrop';
 
 import css from './Modal.module.scss';
 
-class Modal extends Component {
+const modal = (props) => {
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return ( nextProps.show !== this.props.show || nextProps.children !== this.props.children );
-    }
+    return (
+        <Template>
 
-    render(){
-        return (
-            <Template>
+            <BackDrop show={props.show} onClick={props.onHide}/>
 
-                <BackDrop show={this.props.show} onClick={this.props.onHide}/>
+            <div
+                className={css.Modal}
+                style={{
+                    transform: props.show ? 'translate(-50%, -50%)' : 'translate(-50%, -125vh)',
+                    opacity: props.show ? '1' : '0',
+                }}>
+                {props.children}
+            </div>
 
-                <div
-                    className={css.Modal}
-                    style={{
-                        transform: this.props.show ? 'translate(-50%, -50%)' : 'translate(-50%, -125vh)',
-                        opacity: this.props.show ? '1' : '0',
-                    }}>
-                    {this.props.children}
-                </div>
+        </Template>
+    );
+};
 
-            </Template>
-        );
-    }
-}
-
-export default Modal;
+export default React.memo(modal, (prevProps, nextProps) => {
+    return ( nextProps.show === prevProps.show && nextProps.children === prevProps.children );
+});
