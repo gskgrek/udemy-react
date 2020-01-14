@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 
 import Input from '../../components/UI/Input/Input';
@@ -7,6 +8,8 @@ import Button from '../../components/UI/Button/Button';
 import Spiner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import * as actions from '../../store/actions/index';
+
+import {checkValidity} from '../../utils/utils';
 
 import * as css from './Auth.module.scss';
 
@@ -46,37 +49,11 @@ class Auth extends Component{
         isSignUp: false,
     };
 
-    checkValidity(value, rules){
-        let isValid = true;
-
-        if( rules ) {
-
-            if (rules.required) {
-                isValid = value.trim() !== '' && isValid;
-            }
-
-            if (rules.minLength) {
-                isValid = value.length >= rules.minLength && isValid
-            }
-
-            if (rules.maxLength) {
-                isValid = value.length <= rules.maxLength && isValid
-            }
-
-            if (rules.isEmail) {
-                const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-                isValid = pattern.test(value) && isValid
-            }
-
-            if (rules.isNumeric) {
-                const pattern = /^\d+$/;
-                isValid = pattern.test(value) && isValid
-            }
-
+    componentDidMount(){
+        if( !this.props.building && this.props.redirectPath !== "/" ){
+            this.props.onSetAuthRedirectPath("/");
         }
-
-        return isValid;
-    };//
+    };
 
     inputChangedHandler = (event, inputIdentifier) => {
         const updatedControls = {
@@ -84,7 +61,7 @@ class Auth extends Component{
             [inputIdentifier]: {
                 ...this.state.controls[inputIdentifier],
                 value: event.target.value,
-                valid: this.checkValidity(event.target.value, this.state.controls[inputIdentifier].validation),
+                valid: checkValidity(event.target.value, this.state.controls[inputIdentifier].validation),
                 touched: true,
             }
         };
@@ -133,6 +110,10 @@ class Auth extends Component{
             form = <Spiner/>;
         }
 
+        if( this.props.isAuthenticated ){
+            form = <Redirect to={this.props.redirectPath} />;
+        }
+
         return(
             <div className={css.Auth}>
                 <h4>{this.state.isSignUp ? 'SIGN UP' : 'SIGN IN'}</h4>
@@ -146,12 +127,16 @@ class Auth extends Component{
 const mapStateToProps = (state) => {
     return {
         loading: state.auth.loading,
+        isAuthenticated: state.auth.token !== null,
+        building: state.burgerBuilder.building,
+        redirectPath: state.auth.redirectPath,
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
         onAuth: (email, password, isSignUp) => dispatch( actions.auth(email, password, isSignUp) ),
+        onSetAuthRedirectPath: (path) => dispatch( actions.setAuthRedirectPath(path) ),
     }
 };
 

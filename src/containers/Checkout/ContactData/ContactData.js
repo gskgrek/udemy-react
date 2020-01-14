@@ -9,6 +9,7 @@ import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 
 import * as actions from '../../../store/actions/index';
+import {checkValidity} from '../../../utils/utils';
 
 import css from './ContactData.module.scss';
 
@@ -116,32 +117,13 @@ class ContactData extends Component{
             ingredients: this.props.ingredients,
             price: this.props.price,
             orderData: formData,
+            userId: this.props.userId,
         };
 
         this.props.onOrderBurger(order, this.props.token);
 
         return false;
     };
-
-    checkValidity(value, rules){
-        let isValid = true;
-
-        if( rules ) {
-            if (isValid && rules.required) {
-                isValid = value.trim() !== '';
-            }
-
-            if (isValid && rules.minLength) {
-                isValid = value.length >= rules.minLength;
-            }
-
-            if (isValid && rules.maxLength) {
-                isValid = value.length <= rules.maxLength;
-            }
-        }
-
-        return isValid;
-    }
 
     inputChangedHandler = (event, inputIdentifier) => {
         const updatedOrderForm = {
@@ -151,7 +133,7 @@ class ContactData extends Component{
             ...updatedOrderForm[inputIdentifier]
         };
         updatedFormElement.value = event.target.value;
-        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+        updatedFormElement.valid = checkValidity(updatedFormElement.value, updatedFormElement.validation);
         updatedFormElement.touched = true;
         updatedOrderForm[inputIdentifier] = updatedFormElement;
 
@@ -204,6 +186,7 @@ const mapStateToProps = (state) => {
         price: state.burgerBuilder.totalPrice,
         loading: state.order.loading,
         token: state.auth.token,
+        userId: state.auth.userId,
     }
 };
 
